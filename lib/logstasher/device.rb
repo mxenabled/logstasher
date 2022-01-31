@@ -16,6 +16,8 @@ module LogStasher
         ::LogStasher::Device::UDP.new(config)
       when "stdout", :stdout then
         $stdout
+      when "file", :file then
+        config["path"]
       else
         fail ArgumentError, "Unknown type: #{type}"
       end

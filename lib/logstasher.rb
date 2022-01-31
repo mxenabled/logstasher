@@ -1,8 +1,10 @@
-require 'logger'
-require 'logstash-event'
+require "logger"
+require "logstash-event"
 
 module LogStasher
   class << self
+    SILENT_LOGGER = ::Logger.new("/dev/null", level: :unknown)
+
     attr_reader :append_fields_callback
     attr_writer :enabled
     attr_writer :include_parameters
@@ -61,6 +63,9 @@ module LogStasher
     end
 
     def logger
+      # Return a /dev/null logger if logstasher is enabled or silencing was enabled.
+      return SILENT_LOGGER if !enabled? || silence_standard_logging?
+
       @logger ||= initialize_logger
     end
 
@@ -78,4 +83,4 @@ module LogStasher
   end
 end
 
-require 'logstasher/railtie' if defined?(Rails)
+require "logstasher/railtie" if defined?(Rails)
