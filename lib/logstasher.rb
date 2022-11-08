@@ -9,6 +9,7 @@ module LogStasher
     attr_writer :serialize_parameters
     attr_writer :silence_standard_logging
     attr_accessor :metadata
+    attr_accessor :prefix
 
     def append_fields(&block)
       @append_fields_callback = block
@@ -57,7 +58,7 @@ module LogStasher
                        payload.to_json
                      end
 
-      logger << json_payload + $INPUT_RECORD_SEPARATOR
+      logger << (prefix.nil? ? "" : prefix) + json_payload + $INPUT_RECORD_SEPARATOR
     end
 
     def logger

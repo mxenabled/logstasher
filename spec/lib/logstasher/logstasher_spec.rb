@@ -24,6 +24,19 @@ describe ::LogStasher do
       end
     end
 
+    context "with prefix" do
+      before { ::LogStasher.prefix = "LOGSTASHER " }
+      after  { ::LogStasher.prefix = nil           }
+
+      it "appends a prefix to log lines." do
+        expect(::LogStasher.logger).to receive(:<<) do |line|
+          expect(line).to match(/^LOGSTASHER /)
+        end
+
+        ::LogStasher.log_as_json(:yolo => :brolo)
+      end
+    end
+
     context "with metadata" do
       before { ::LogStasher.metadata = { :namespace => :cooldude } }
       after { ::LogStasher.metadata = {} }
