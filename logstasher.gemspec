@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency "logstash-event", "~> 1.2"
+  s.add_runtime_dependency "dry-validation", ">= 1.11.0"
 
   s.add_development_dependency "redis"
   s.add_development_dependency "rspec"

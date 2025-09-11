@@ -8,6 +8,7 @@ module LogStasher
     config.logstasher.silence_creation_message = true
     config.logstasher.logger = nil
     config.logstasher.log_level = ::Logger::INFO
+    config.logstasher.dry_validation_contract = nil
 
     config.logstasher.metadata  = {}
     config.before_initialize do
@@ -20,6 +21,7 @@ module LogStasher
       ::LogStasher.logger                   = options.logger || default_logger
       ::LogStasher.logger.level             = options.log_level
       ::LogStasher.metadata                 = options.metadata
+      ::LogStasher.dry_validation_contract  = options.dry_validation_contract
     end
 
     initializer 'logstasher.load' do
