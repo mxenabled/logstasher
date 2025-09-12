@@ -36,6 +36,17 @@ module LogStasher
       @append_fields_callback = block
     end
 
+    def dry_validation_contract=(contract)
+      if contract && !contract.is_a?(::Dry::Validation::Contract)
+        raise ArgumentError, "Expected a Dry::Validation::Contract, got #{contract.class}"
+      end
+      @dry_validation_contract = contract
+    end
+
+    def dry_validation_contract
+      @dry_validation_contract
+    end
+
     def enabled?
       if @enabled.nil?
         @enabled = false
@@ -81,6 +92,9 @@ module LogStasher
       # example.
       payload = ::LogStash::Event.new(payload) if as_logstash_event
 
+      # Validate payload if a dry_validation_contract is configured
+      validate_payload(payload) if dry_validation_contract
+
       logger << payload.to_json + $INPUT_RECORD_SEPARATOR
     end
 
@@ -98,6 +112,22 @@ module LogStasher
       end
 
       @silence_standard_logging
+    end
+
+  private
+
+    def validate_payload(payload)
+      return unless payload.is_a?(::LogStash::Event) || payload.is_a?(::Hash)
+
+      validation = dry_validation_contract.call(payload.to_hash)
+
+      validation_payload = {
+        dry_validation_success: validation.success?,
+        dry_validation_errors: validation.errors.to_h.to_json
+      }
+
+      return payload.append(validation_payload) if payload.is_a?(::LogStash::Event)
+      return payload.deep_merge!(validation_payload) if payload.is_a?(::Hash)
     end
   end
 end

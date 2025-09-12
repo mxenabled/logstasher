@@ -44,11 +44,13 @@ describe ::LogStasher::Railtie do
       config.include_parameters       = "include_parameters"
       config.serialize_parameters     = "serialize_parameters"
       config.silence_standard_logging = "silence_standard_logging"
+      config.dry_validation_contract  = "dry_validation_contract"
 
       expect(::LogStasher).to receive(:enabled=).with("enabled")
       expect(::LogStasher).to receive(:include_parameters=).with("include_parameters")
       expect(::LogStasher).to receive(:serialize_parameters=).with("serialize_parameters")
       expect(::LogStasher).to receive(:silence_standard_logging=).with("silence_standard_logging")
+      expect(::LogStasher).to receive(:dry_validation_contract=).with("dry_validation_contract")
       expect(::LogStasher).to receive(:logger=).with(config.logger).and_call_original
       expect(config.logger).to receive(:level=).with("log_level")
 
