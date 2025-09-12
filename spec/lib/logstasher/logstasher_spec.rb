@@ -93,7 +93,7 @@ describe ::LogStasher do
       it "validates LogStash::Event payload and appends validation metadata on failure" do
         expect(::LogStasher.logger).to receive(:<<) do |json|
           payload = ::JSON.parse(json)
-          expect(payload["dry_validation_errors"]).to include("must be a string")
+          expect(payload["dry_validation_errors"]).to eq("{\"yolo\":[\"must be a string\"]}")
           expect(payload["dry_validation_success"]).to be false
           expect(payload["yolo"]).to eq(123)
           expect(payload["metadata"]["namespace"]).to eq("cooldude")
@@ -117,7 +117,7 @@ describe ::LogStasher do
       it "validates hash payload and merges validation metadata on failure" do
         expect(::LogStasher.logger).to receive(:<<) do |json|
           payload = ::JSON.parse(json)
-          expect(payload["dry_validation_errors"]).to include("must be a string")
+          expect(payload["dry_validation_errors"]).to eq("{\"yolo\":[\"must be a string\"]}")
           expect(payload["dry_validation_success"]).to be false
           expect(payload["yolo"]).to eq(123)
           expect(payload["metadata"]["namespace"]).to eq("cooldude")

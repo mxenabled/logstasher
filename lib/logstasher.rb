@@ -123,7 +123,7 @@ module LogStasher
 
       validation_payload = {
         dry_validation_success: validation.success?,
-        dry_validation_errors: validation.errors.to_hash.inspect
+        dry_validation_errors: validation.errors.to_h.to_json
       }
 
       return payload.append(validation_payload) if payload.is_a?(::LogStash::Event)
