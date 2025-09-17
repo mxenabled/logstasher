@@ -134,6 +134,18 @@ describe ::LogStasher do
 
         ::LogStasher.log_as_json([{"yolo" => "brolo"}])
       end
+
+      it "formats the payload correctly for the contract call" do
+        expect(::LogStasher.logger).to receive(:<<) do |json|
+          payload = ::JSON.parse(json)
+          expect(payload["dry_validation_errors"]).to eq("{}")
+          expect(payload["dry_validation_success"]).to be true
+          expect(payload["yolo"]).to eq("brolo")
+          expect(payload["metadata"]["namespace"]).to eq("cooldude")
+        end
+
+        ::LogStasher.log_as_json(::LogStash::Event.new("yolo" => :brolo))
+      end
     end
   end
 

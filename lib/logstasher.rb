@@ -119,15 +119,15 @@ module LogStasher
     def validate_payload(payload)
       return unless payload.is_a?(::LogStash::Event) || payload.is_a?(::Hash)
 
-      validation = dry_validation_contract.call(payload.to_hash)
-
+      formatted_payload = ::JSON.parse(payload.to_json).deep_symbolize_keys
+      validation = dry_validation_contract.call(formatted_payload)
       validation_payload = {
         dry_validation_success: validation.success?,
         dry_validation_errors: validation.errors.to_h.to_json
       }
 
       return payload.append(validation_payload) if payload.is_a?(::LogStash::Event)
-      return payload.deep_merge!(validation_payload) if payload.is_a?(::Hash)
+      return payload.merge!(validation_payload) if payload.is_a?(::Hash)
     end
   end
 end
