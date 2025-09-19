@@ -61,9 +61,11 @@ describe ::LogStasher do
 
     context "with dry validation contract" do
       let(:validation_contract) do
+        Types = Dry.Types()
         Class.new(Dry::Validation::Contract) do
-          params do
+          schema do
             required(:yolo).filled(:string)
+            optional(:yolo_coercible).maybe(Types::Coercible::String)
           end
         end.new
       end
@@ -145,6 +147,15 @@ describe ::LogStasher do
         end
 
         ::LogStasher.log_as_json(::LogStash::Event.new("yolo" => :brolo))
+      end
+
+      it "logs coerced types" do
+        expect(::LogStasher.logger).to receive(:<<) do |json|
+          payload = ::JSON.parse(json)
+          expect(payload["yolo_coercible"]).to eq("123")
+        end
+
+        ::LogStasher.log_as_json(::LogStash::Event.new("yolo_coercible" => 123))
       end
     end
   end

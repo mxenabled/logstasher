@@ -93,7 +93,7 @@ module LogStasher
       payload = ::LogStash::Event.new(payload) if as_logstash_event
 
       # Validate payload if a dry_validation_contract is configured
-      validate_payload(payload) if dry_validation_contract
+      payload = validate_payload(payload) if dry_validation_contract
 
       logger << payload.to_json + $INPUT_RECORD_SEPARATOR
     end
@@ -117,17 +117,16 @@ module LogStasher
   private
 
     def validate_payload(payload)
-      return unless payload.is_a?(::LogStash::Event) || payload.is_a?(::Hash)
+      return payload unless payload.is_a?(::LogStash::Event) || payload.is_a?(::Hash)
 
       formatted_payload = ::JSON.parse(payload.to_json).deep_symbolize_keys
-      validation = dry_validation_contract.call(formatted_payload)
-      validation_payload = {
-        dry_validation_success: validation.success?,
-        dry_validation_errors: validation.errors.to_h.to_json
+      validation_results = dry_validation_contract.call(formatted_payload)
+      validation_metadata = {
+        dry_validation_success: validation_results.success?,
+        dry_validation_errors: validation_results.errors.to_h.to_json
       }
 
-      return payload.append(validation_payload) if payload.is_a?(::LogStash::Event)
-      return payload.merge!(validation_payload) if payload.is_a?(::Hash)
+      formatted_payload.deep_merge(validation_results.to_h).merge(validation_metadata)
     end
   end
 end
